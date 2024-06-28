@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
+    "start": "node app.js"
   },
   "author": "",
   "license": "ISC",
@@ -41,8 +41,5 @@
     "sha256": "^0.2.0",
     "store": "^2.0.12",
     "uniqid": "^5.4.0"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.22"
   }
 }
