@@ -43,21 +43,21 @@ exports.add_chat_intake = async (req, res) => {
     type: type
 
   });
-  const findone = await Intek.findOne({ userid: userid })
-  if (findone) {
-    await Intek.findOneAndUpdate(
-      {
-        userid: req.body.userid,
-      },
-      { $set: req.body },
-      { new: true }
-    )
+  // const findone = await Intek.findOne({ userid: userid })
+  // if (findone) {
+  //   await Intek.findOneAndUpdate(
+  //     {
+  //       userid: req.body.userid,
+  //     },
+  //     { $set: req.body },
+  //     { new: true }
+  //   )
 
-    newIntek
-      .save()
-      .then((data) => resp.successr(res, data))
-      .catch((error) => resp.errorr(res, error));
-  } else {
+  //   newIntek
+  //     .save()
+  //     .then((data) => resp.successr(res, data))
+  //     .catch((error) => resp.errorr(res, error));
+  // } else {
     if (req.files) {
       // if (req.files.file[0].path) 
      if (req.files && req.files.file && req.files.file[0] && req.files.file[0].path){
@@ -78,7 +78,7 @@ exports.add_chat_intake = async (req, res) => {
       .save()
       .then((data) => resp.successr(res, data))
       .catch((error) => resp.errorr(res, error));
-  }
+  // }
 }
 
 

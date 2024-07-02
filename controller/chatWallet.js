@@ -3,85 +3,74 @@ const resp = require("../helpers/apiResponse");
 const Astrologer = require("../models/astrologer");
 const Minutecharge = require("../models/min_charges");
 const User = require("../models/users");
-const moment = require('moment');
-var cron = require('node-cron');
+const moment = require("moment");
+var cron = require("node-cron");
 const WalletT = require("../models/walletTransaction");
 
-
-
 exports.addCallWallet = async (req, res) => {
+  const { userid, astroid, recharge_planId, beforeAmt, deductedAmt, finalAmt } =
+    req.body;
 
-  const { userid, astroid, recharge_planId, beforeAmt, deductedAmt, finalAmt } = req.body;
-
-
-  const getoneastro = await Astrologer.findOne({ _id: req.body.astroid })
+  const getoneastro = await Astrologer.findOne({ _id: req.body.astroid });
   if (getoneastro) {
-    const getcharge = getoneastro.callCharge
+    const getcharge = getoneastro.callCharge;
 
     //  const getplanchrge = await Minutecharge.findOne({_id:req.body.recharge_planId})
     //  console.log("MIN PLAN",getplanchrge)
     //  if(getplanchrge){
     //  const getplan = getplanchrge.minute
     //  console.log("getplan",getplan)
-    const minute = 5
+    const minute = 5;
 
-
-    const getuserdetail = await User.findOne({ _id: req.body.userid })
+    const getuserdetail = await User.findOne({ _id: req.body.userid });
     //console.log("GETUSER",getuserdetail)
     if (getuserdetail) {
-      let totalamt = getcharge * minute
+      let totalamt = getcharge * minute;
       //  console.log("TOTAL AMT WAS DEDUCTED", totalamt)
-      const getwalletamt = getuserdetail.amount
+      const getwalletamt = getuserdetail.amount;
       //  console.log("WALLET AMT", getwalletamt)
-      let newamt = 0
+      let newamt = 0;
       if (getwalletamt > totalamt) {
         const chatWalletData = {
           userid: req.body.userid,
           astroid: req.body.astroid,
-
-          type: req.body.type
+          userintakeid: req.body.userintakeid,
+          type: req.body.type,
         };
 
         const chatWallet = new ChatWallet(chatWalletData);
         await chatWallet.save();
 
-
-
         res.status(200).json({
           status: true,
           msg: "success",
-          _id: chatWallet.id
+          _id: chatWallet.id,
           //     type: "Chat"
-        })
-
+        });
       } else {
         res.status(201).json({
           status: false,
-          msg: "Insufficient belence"
-        })
+          msg: "Insufficient belence",
+        });
       }
-
     } else {
       // console.log("ERROR")
       res.status(400).json({
         status: false,
-        msg: "Something Went Wrong"
-      })
+        msg: "Something Went Wrong",
+      });
     }
   } else {
     // console.log("error")
     res.status(400).json({
       status: false,
-      msg: "Something Went Wrong"
-    })
+      msg: "Something Went Wrong",
+    });
   }
-
-}
-
+};
 
 // exports.addCallWallet = async (req, res) => {
 //     const {userid,astroid,recharge_planId,beforeAmt,deductedAmt,finalAmt} = req.body;
-
 
 // const getoneastro = await Astrologer.findOne({_id:req.body.astroid})
 // //console.log("ASTRO",getoneastro)
@@ -95,7 +84,6 @@ exports.addCallWallet = async (req, res) => {
 // //  const getplan = getplanchrge.minute
 // //  console.log("getplan",getplan)
 // const minute = 5
-
 
 //  const getuserdetail = await User.findOne({_id:req.body.userid})
 //  //console.log("GETUSER",getuserdetail)
@@ -150,7 +138,7 @@ exports.addCallWallet = async (req, res) => {
 // //             // callCharge:getoneastro.callCharge,
 // //             // minute:
 // //           });
-// //         }) 
+// //         })
 // //         .catch((error) => {
 // //           res.status(400).json({
 // //             status: false,
@@ -227,33 +215,28 @@ exports.addCallWallet = async (req, res) => {
 
 // }
 
-
 exports.addVideoCallWallet = async (req, res) => {
   const { userid, astroid } = req.body;
 
-
-
-  const getoneastro = await Astrologer.findOne({ _id: req.body.astroid })
+  const getoneastro = await Astrologer.findOne({ _id: req.body.astroid });
   //console.log("ASTRO",getoneastro)
   if (getoneastro) {
-    const getcharge = getoneastro.callCharge
+    const getcharge = getoneastro.callCharge;
 
-    const minute = 5
+    const minute = 5;
 
-
-    const getuserdetail = await User.findOne({ _id: req.body.userid })
+    const getuserdetail = await User.findOne({ _id: req.body.userid });
     //console.log("GETUSER",getuserdetail)
     if (getuserdetail) {
-      let totalamt = getcharge * minute
+      let totalamt = getcharge * minute;
       // console.log("TOTAL AMT WAS DEDUCTED", totalamt)
-      const getwalletamt = getuserdetail.amount
-      let newamt = 0
+      const getwalletamt = getuserdetail.amount;
+      let newamt = 0;
       if (getwalletamt > totalamt) {
         res.status(200).json({
           status: true,
-          msg: "success"
-        })
-
+          msg: "success",
+        });
 
         const newChatWallet = new ChatWallet({
           userid: userid,
@@ -261,9 +244,7 @@ exports.addVideoCallWallet = async (req, res) => {
           type: "Video Call",
           tran_Type: "Debited",
           conversationId: "#" + Date.now(),
-
-
-        })
+        });
         const newWalletT = new WalletT({
           userid: userid,
           astroid: astroid,
@@ -274,8 +255,9 @@ exports.addVideoCallWallet = async (req, res) => {
           // beforeAmt: getwalletamt,
           // deductedAmt: totalamt,
           // finalAmt: newamt
-        })
-        newChatWallet.save()
+        });
+        newChatWallet
+          .save()
 
           .then(async (data) => {
             const createnewtable = await WalletT.create(newWalletT);
@@ -309,35 +291,29 @@ exports.addVideoCallWallet = async (req, res) => {
         //   console.log("UPDATE USER AMOUNT", finduserAndupdate)
 
         // }
-
-
-
       } else {
         res.status(201).json({
           status: false,
-          msg: "Insufficient Balance"
-        })
+          msg: "Insufficient Balance",
+        });
       }
-
     } else {
       res.status(400).json({
         status: false,
-        msg: "Something Went Wrong"
-      })
+        msg: "Something Went Wrong",
+      });
     }
   } else {
     res.status(400).json({
       status: false,
-      msg: "Something Went Wrong"
-    })
+      msg: "Something Went Wrong",
+    });
   }
-
-}
+};
 
 exports.ChatWaiting = async (req, res) => {
   const getone = await ChatWallet.findOne({ _id: req.params.id })
     //.populate("astroid")
-
 
     //console.log("strng",getone)
     //  if(getone){
@@ -351,13 +327,12 @@ exports.ChatWaiting = async (req, res) => {
     //     console.log("gstotal",gstotal)
     //     total_amt =price + gstotal
 
-
     //     res.status(200).json({
     //       status: true,
     //       msg: "success",
     //       data: getone,
-    //     //  gsttotal: gsttotal, 
-    //     total_amt :total_amt    
+    //     //  gsttotal: gsttotal,
+    //     total_amt :total_amt
     //     });
 
     //  }else{
@@ -367,24 +342,22 @@ exports.ChatWaiting = async (req, res) => {
     //     error: "error",
     //   });
 
-
     .then((data) => resp.successr(res, data))
     .catch((error) => resp.errorr(res, error));
-}
-
+};
 
 exports.cartbycustomer = async (req, res) => {
   //await Cart.remove()
-  const findone = await Cart.find({ userid: req.userId })
+  const findone = await Cart.find({ userid: req.userId });
   // .populate("customer")
   if (findone) {
-    const findall = await Product.find({ product: req.params.id })
+    const findall = await Product.find({ product: req.params.id });
     //console.log(findall)
-    const value = findall.value
+    const value = findall.value;
     // console.log(findall)
     if (findall) {
       const getgst = await Gstrate.findOne({ gstrate: findall.gstrate });
-      let value = getgst.value
+      let value = getgst.value;
       // console.log(getgst)
       // console.log(value)
 
@@ -395,7 +368,7 @@ exports.cartbycustomer = async (req, res) => {
         let element_qty = findone[i].product_qty;
 
         //  let element_gst = findone[i].gsttotal;
-        sum = (element_price * element_qty);
+        sum = element_price * element_qty;
         // let sum = 0;
         // sum =  (element_price * element_qty);
         //  gsttotal = value +(element_price*element_qty)
@@ -405,8 +378,8 @@ exports.cartbycustomer = async (req, res) => {
         status: true,
         msg: "success",
         data: findone,
-        //  gsttotal: gsttotal, 
-        //  ttl :gsttotal    
+        //  gsttotal: gsttotal,
+        //  ttl :gsttotal
       });
     } else {
       res.status(400).json({
@@ -416,22 +389,22 @@ exports.cartbycustomer = async (req, res) => {
       });
     }
   }
-}
+};
 exports.getOne_Conversation_Wallet = async (req, res) => {
-  await ChatWallet.find({ userid: req.params.id }).populate("userid").populate("astroid").populate("recharge_planId")
+  await ChatWallet.find({ userid: req.params.id })
+    .populate("userid")
+    .populate("astroid")
+    .populate("recharge_planId")
     .sort({ createdAt: -1 })
     .then((data) => resp.successr(res, data))
     .catch((error) => resp.errorr(res, error));
 };
 
-
 exports.dltNotificattion = async (req, res) => {
-  await ChatWallet.deleteOne({_id:req.params.id})
+  await ChatWallet.deleteOne({ _id: req.params.id })
     .then((data) => resp.deleter(res, data))
     .catch((error) => resp.errorr(res, error));
 };
-
-
 
 exports.acceptNotificationByAstro = async (req, res) => {
   const getdata = await ChatWallet.findOneAndUpdate(
@@ -443,8 +416,7 @@ exports.acceptNotificationByAstro = async (req, res) => {
   )
     .then((data) => resp.successr(res, data))
     .catch((error) => resp.errorr(res, error));
-}
-
+};
 
 exports.acceptChat = async (req, res) => {
   const getdata = await ChatWallet.findOneAndUpdate(
@@ -453,40 +425,40 @@ exports.acceptChat = async (req, res) => {
     },
     { $set: { status: req.body.status } },
     { new: true }
-  )
-  let astroid = getdata.astroid
+  );
+  let astroid = getdata.astroid;
   // console.log("astroid",astroid)
-  let planid = getdata.recharge_planId
+  let planid = getdata.recharge_planId;
   // console.log("astroid",astroid)
-  let userid = getdata.userid
+  let userid = getdata.userid;
 
   if (getdata.status == "Completed") {
     // console.log("Completed")
-    const getoneastro = await Astrologer.findOne({ _id: astroid })
+    const getoneastro = await Astrologer.findOne({ _id: astroid });
 
     // console.log("ASTRO", getoneastro)
     if (getoneastro) {
-      const getcharge = getoneastro.callCharge
+      const getcharge = getoneastro.callCharge;
       // console.log("CALLCHARGE", getcharge)
 
-      const getplanchrge = await Minutecharge.findOne({ _id: planid })
+      const getplanchrge = await Minutecharge.findOne({ _id: planid });
       // console.log("MIN PLAN", getplanchrge)
       if (getplanchrge) {
-        const getplan = getplanchrge.minute
+        const getplan = getplanchrge.minute;
         //  console.log("getplan", getplan)
 
-        const getuserdetail = await User.findOne({ _id: userid })
+        const getuserdetail = await User.findOne({ _id: userid });
         //console.log("GETUSER",getuserdetail)
         if (getuserdetail) {
-          let totalamt = getcharge * getplan
+          let totalamt = getcharge * getplan;
           //  console.log("TOTAL AMT WAS DEDUCTED", totalamt)
-          const getwalletamt = getuserdetail.amount
+          const getwalletamt = getuserdetail.amount;
           // console.log("WALLET AMT", getwalletamt)
-          let newamt = 0
+          let newamt = 0;
           if (getwalletamt > totalamt) {
             //  console.log("success")
 
-            newamt = getwalletamt - totalamt
+            newamt = getwalletamt - totalamt;
             // console.log("Before", getwalletamt)
             //console.log("new", newamt)
 
@@ -500,9 +472,10 @@ exports.acceptChat = async (req, res) => {
               beforeAmt: getwalletamt,
               deductedAmt: totalamt,
               finalAmt: newamt,
-              status: "Completed"
-            })
-            newWalletT.save()
+              status: "Completed",
+            });
+            newWalletT
+              .save()
               .then(async (data) => {
                 const createnewtable = await WalletT.create(newWalletT);
                 //   console.log("MMMMMM",createnewtable)
@@ -512,7 +485,7 @@ exports.acceptChat = async (req, res) => {
                   data: data,
                   beforeAmt: getwalletamt,
                   deductedAmt: totalamt,
-                  finalAmt: newamt
+                  finalAmt: newamt,
 
                   // callCharge:getoneastro.callCharge,
                   // minute:
@@ -526,17 +499,14 @@ exports.acceptChat = async (req, res) => {
                 });
               });
             const finduserAndupdate = await User.findOneAndUpdate(
-
               { _id: userid },
 
               { $set: { amount: newamt, deductedAmt: totalamt } },
-              { new: true },
-            )
+              { new: true }
+            );
             if (finduserAndupdate) {
               //  console.log("UPDATE USER AMOUNT", finduserAndupdate)
-
             }
-
           }
         }
       }
@@ -544,23 +514,20 @@ exports.acceptChat = async (req, res) => {
       // console.log("error")
       res.status(400).json({
         status: false,
-        msg: "Something Went Wrong"
-      })
+        msg: "Something Went Wrong",
+      });
     }
-
   } else if (getdata.status == "Accepted") {
     // console.log("Accepted")
-    const getplanchrge = await Minutecharge.findOne({ _id: planid })
+    const getplanchrge = await Minutecharge.findOne({ _id: planid });
     // console.log("MIN PLAN", getplanchrge)
     if (getplanchrge) {
-
-
-      var getplan = getplanchrge.minute
+      var getplan = getplanchrge.minute;
       //  console.log("getplan", getplan)
-      let milliseconds = getplan * 60000
+      let milliseconds = getplan * 60000;
       // console.log("milliseconds", milliseconds)
-      var f = new Date()
-      var dtime = new Date(f.getTime()).toLocaleTimeString()
+      var f = new Date();
+      var dtime = new Date(f.getTime()).toLocaleTimeString();
       //console.log("dtime", dtime)
       var minutesToAdd = getplan;
       // var currentDate = new Date();
@@ -571,11 +538,9 @@ exports.acceptChat = async (req, res) => {
       // console.log(hours); // 👉️ "09"
       // console.log(minutes); // 👉️ "30"
 
-
       // setTimeout(() => {
       //   console.log('Hello World!');
       // }, `${milliseconds}`);
-
 
       function myFunction() {
         timeout = setTimeout(alertFunc, `${getplan}` * 60 * 1000);
@@ -590,7 +555,7 @@ exports.acceptChat = async (req, res) => {
           },
           { $set: { status: "Completed" } },
           { new: true }
-        )
+        );
 
         await Astrologer.findOneAndUpdate(
           {
@@ -598,17 +563,16 @@ exports.acceptChat = async (req, res) => {
           },
           { $set: { waiting_queue: getplan } },
           { new: true }
-        )
+        );
       }
       //console.log("DATA", getdata)
-      myFunction()
+      myFunction();
 
       res.status(200).json({
         status: true,
         msg: "Your Request is Accepted",
-        data: getdata
-      })
-
+        data: getdata,
+      });
 
       // const task = cron.schedule(`0 ${minutes} ${hours} * * *`,async () => {
 
@@ -623,23 +587,19 @@ exports.acceptChat = async (req, res) => {
       //   task.stop()
       //   console.log("DATA",getdata)
 
-
-
       // });
     }
-
   } else if (getdata.status == "Rejected") {
     //  console.log("Rejected")
     res.status(200).json({
       status: true,
-      msg: "Your Request is Rejected"
-    })
-
+      msg: "Your Request is Rejected",
+    });
   }
 
   // .then((data) => resp.successr(res, data))
   // .catch((error) => resp.errorr(res, error));
-}
+};
 
 exports.acceptVoiceCall = async (req, res) => {
   const getdata = await ChatWallet.findOneAndUpdate(
@@ -648,40 +608,40 @@ exports.acceptVoiceCall = async (req, res) => {
     },
     { $set: { status: req.body.status } },
     { new: true }
-  )
-  let astroid = getdata.astroid
+  );
+  let astroid = getdata.astroid;
   // console.log("astroid",astroid)
-  let planid = getdata.recharge_planId
+  let planid = getdata.recharge_planId;
   // console.log("astroid",astroid)
-  let userid = getdata.userid
+  let userid = getdata.userid;
 
   if (getdata.status == "Completed") {
     // console.log("Completed")
-    const getoneastro = await Astrologer.findOne({ _id: astroid })
+    const getoneastro = await Astrologer.findOne({ _id: astroid });
 
     // console.log("ASTRO", getoneastro)
     if (getoneastro) {
-      const getcharge = getoneastro.callCharge
+      const getcharge = getoneastro.callCharge;
       //  console.log("CALLCHARGE", getcharge)
 
-      const getplanchrge = await Minutecharge.findOne({ _id: planid })
+      const getplanchrge = await Minutecharge.findOne({ _id: planid });
       //  console.log("MIN PLAN", getplanchrge)
       if (getplanchrge) {
-        const getplan = getplanchrge.minute
+        const getplan = getplanchrge.minute;
         //  console.log("getplan", getplan)
 
-        const getuserdetail = await User.findOne({ _id: userid })
+        const getuserdetail = await User.findOne({ _id: userid });
         //console.log("GETUSER",getuserdetail)
         if (getuserdetail) {
-          let totalamt = getcharge * getplan
+          let totalamt = getcharge * getplan;
           //  console.log("TOTAL AMT WAS DEDUCTED", totalamt)
-          const getwalletamt = getuserdetail.amount
+          const getwalletamt = getuserdetail.amount;
           //  console.log("WALLET AMT", getwalletamt)
-          let newamt = 0
+          let newamt = 0;
           if (getwalletamt > totalamt) {
             //  console.log("success")
 
-            newamt = getwalletamt - totalamt
+            newamt = getwalletamt - totalamt;
             // console.log("Before", getwalletamt)
             // console.log("new", newamt)
 
@@ -695,9 +655,10 @@ exports.acceptVoiceCall = async (req, res) => {
               beforeAmt: getwalletamt,
               deductedAmt: totalamt,
               finalAmt: newamt,
-              status: "Completed"
-            })
-            newWalletT.save()
+              status: "Completed",
+            });
+            newWalletT
+              .save()
               .then(async (data) => {
                 //  const createnewtable = await WalletT.create(newWalletT);
                 //   console.log("MMMMMM",createnewtable)
@@ -707,7 +668,7 @@ exports.acceptVoiceCall = async (req, res) => {
                   data: data,
                   beforeAmt: getwalletamt,
                   deductedAmt: totalamt,
-                  finalAmt: newamt
+                  finalAmt: newamt,
 
                   // callCharge:getoneastro.callCharge,
                   // minute:
@@ -721,17 +682,14 @@ exports.acceptVoiceCall = async (req, res) => {
                 });
               });
             const finduserAndupdate = await User.findOneAndUpdate(
-
               { _id: userid },
 
               { $set: { amount: newamt, deductedAmt: totalamt } },
-              { new: true },
-            )
+              { new: true }
+            );
             if (finduserAndupdate) {
               // console.log("UPDATE USER AMOUNT", finduserAndupdate)
-
             }
-
           }
         }
       }
@@ -739,20 +697,18 @@ exports.acceptVoiceCall = async (req, res) => {
       // console.log("error")
       res.status(400).json({
         status: false,
-        msg: "Something Went Wrong"
-      })
+        msg: "Something Went Wrong",
+      });
     }
-
   } else if (getdata.status == "Accepted") {
     // console.log("Accepted")
   } else if (getdata.status == "Rejected") {
     // console.log("Rejected")
-
   }
 
   // .then((data) => resp.successr(res, data))
   // .catch((error) => resp.errorr(res, error));
-}
+};
 
 exports.acceptVideoChat = async (req, res) => {
   const getdata = await ChatWallet.findOneAndUpdate(
@@ -761,40 +717,40 @@ exports.acceptVideoChat = async (req, res) => {
     },
     { $set: { status: req.body.status } },
     { new: true }
-  )
-  let astroid = getdata.astroid
+  );
+  let astroid = getdata.astroid;
   // console.log("astroid",astroid)
-  let planid = getdata.recharge_planId
+  let planid = getdata.recharge_planId;
   // console.log("astroid",astroid)
-  let userid = getdata.userid
+  let userid = getdata.userid;
 
   if (getdata.status == "Completed") {
     // console.log("Completed")
-    const getoneastro = await Astrologer.findOne({ _id: astroid })
+    const getoneastro = await Astrologer.findOne({ _id: astroid });
 
     // console.log("ASTRO", getoneastro)
     if (getoneastro) {
-      const getcharge = getoneastro.callCharge
+      const getcharge = getoneastro.callCharge;
       //  console.log("CALLCHARGE", getcharge)
 
-      const getplanchrge = await Minutecharge.findOne({ _id: planid })
+      const getplanchrge = await Minutecharge.findOne({ _id: planid });
       //  console.log("MIN PLAN", getplanchrge)
       if (getplanchrge) {
-        const getplan = getplanchrge.minute
+        const getplan = getplanchrge.minute;
         //  console.log("getplan", getplan)
 
-        const getuserdetail = await User.findOne({ _id: userid })
+        const getuserdetail = await User.findOne({ _id: userid });
         //console.log("GETUSER",getuserdetail)
         if (getuserdetail) {
-          let totalamt = getcharge * getplan
+          let totalamt = getcharge * getplan;
           // console.log("TOTAL AMT WAS DEDUCTED", totalamt)
-          const getwalletamt = getuserdetail.amount
+          const getwalletamt = getuserdetail.amount;
           //  console.log("WALLET AMT", getwalletamt)
-          let newamt = 0
+          let newamt = 0;
           if (getwalletamt > totalamt) {
             //  console.log("success")
 
-            newamt = getwalletamt - totalamt
+            newamt = getwalletamt - totalamt;
             // console.log("Before", getwalletamt)
             // console.log("new", newamt)
 
@@ -808,9 +764,10 @@ exports.acceptVideoChat = async (req, res) => {
               beforeAmt: getwalletamt,
               deductedAmt: totalamt,
               finalAmt: newamt,
-              status: "Completed"
-            })
-            newWalletT.save()
+              status: "Completed",
+            });
+            newWalletT
+              .save()
               .then(async (data) => {
                 //  const createnewtable = await WalletT.create(newWalletT);
                 //   console.log("MMMMMM",createnewtable)
@@ -820,7 +777,7 @@ exports.acceptVideoChat = async (req, res) => {
                   data: data,
                   beforeAmt: getwalletamt,
                   deductedAmt: totalamt,
-                  finalAmt: newamt
+                  finalAmt: newamt,
 
                   // callCharge:getoneastro.callCharge,
                   // minute:
@@ -834,17 +791,14 @@ exports.acceptVideoChat = async (req, res) => {
                 });
               });
             const finduserAndupdate = await User.findOneAndUpdate(
-
               { _id: userid },
 
               { $set: { amount: newamt, deductedAmt: totalamt } },
-              { new: true },
-            )
+              { new: true }
+            );
             if (finduserAndupdate) {
               // console.log("UPDATE USER AMOUNT", finduserAndupdate)
-
             }
-
           }
         }
       }
@@ -852,23 +806,18 @@ exports.acceptVideoChat = async (req, res) => {
       // console.log("error")
       res.status(400).json({
         status: false,
-        msg: "Something Went Wrong"
-      })
+        msg: "Something Went Wrong",
+      });
     }
-
   } else if (getdata.status == "Accepted") {
     //  console.log("Accepted")
   } else if (getdata.status == "Rejected") {
     //console.log("Rejected")
-
   }
 
   // .then((data) => resp.successr(res, data))
   // .catch((error) => resp.errorr(res, error));
-}
-
-
-
+};
 
 exports.wait_queue_list = async (req, res) => {
   const today = new Date();
@@ -882,8 +831,8 @@ exports.wait_queue_list = async (req, res) => {
     $and: [
       { astroid: req.params.id },
       { status: "Requested" },
-      { createdAt: { $gte: today, $lt: tomorrow } } // Filter for today's data
-    ]
+      { createdAt: { $gte: today, $lt: tomorrow } }, // Filter for today's data
+    ],
   })
     .populate("astroid")
     .populate("userid")
@@ -893,10 +842,8 @@ exports.wait_queue_list = async (req, res) => {
     .catch((error) => resp.errorr(res, error));
 };
 
-
-
 exports.appVideoCalling = async (req, res) => {
-  let requsetedId = req.body.id
+  let requsetedId = req.body.id;
   const getdata = await ChatWallet.findOneAndUpdate(
     {
       _id: req.body.requsetedId,
@@ -907,11 +854,11 @@ exports.appVideoCalling = async (req, res) => {
     .then((data) => {
       // Custom success response format
       const response = {
-        status: 'true',
-        message: 'success',
+        status: "true",
+        message: "success",
         requsetedId: req.body.requsetedId,
         channelName: req.body.channelName,
-        token: req.body.token
+        token: req.body.token,
         // Assuming you want to send the updated data in the response
       };
       res.status(200).json(response);
@@ -919,8 +866,8 @@ exports.appVideoCalling = async (req, res) => {
     .catch((error) => {
       // Custom error response format
       const response = {
-        status: 'false',
-        message: 'error',
+        status: "false",
+        message: "error",
         error: error.message, // Assuming you want to send the error message in the response
       };
       res.status(500).json(response);
@@ -941,9 +888,10 @@ exports.VideoNotification = async (req, res) => {
   await ChatWallet.find({
     $and: [
       { astroid: req.params.id },
-      { status: "Requested" }, { type: "Video" },
-      { createdAt: { $gte: today, $lt: tomorrow } } // Filter for today's data
-    ]
+      { status: "Requested" },
+      { type: "Video" },
+      { createdAt: { $gte: today, $lt: tomorrow } }, // Filter for today's data
+    ],
   })
     // .populate("astroid")
     .populate("userid")
@@ -959,39 +907,39 @@ exports.dlt_wait_queue = async (req, res) => {
     .catch((error) => resp.errorr(res, error));
 };
 
-
 exports.accepted_notification = async (req, res) => {
-  await ChatWallet.find({ $and: [{ userid: req.params.id }, { status: "Accepted" }] }).populate("astroid").populate("userid").populate("recharge_planId")
+  await ChatWallet.find({
+    $and: [{ userid: req.params.id }, { status: "Accepted" }],
+  })
+    .populate("astroid")
+    .populate("userid")
+    .populate("recharge_planId")
     .sort({ createdAt: -1 })
     .then((data) => resp.successr(res, data))
     .catch((error) => resp.errorr(res, error));
 };
 
-
-
 exports.addChatWallet = async (req, res) => {
-  const { userid, astroid, recharge_planId, beforeAmt, deductedAmt, finalAmt } = req.body;
+  const { userid, astroid, recharge_planId, beforeAmt, deductedAmt, finalAmt } =
+    req.body;
 
-
-  const getoneastro = await Astrologer.findOne({ _id: req.body.astroid })
+  const getoneastro = await Astrologer.findOne({ _id: req.body.astroid });
   //console.log("ASTRO",getoneastro)
   if (getoneastro) {
-    const getcharge = getoneastro.callCharge
+    const getcharge = getoneastro.callCharge;
     //console.log("CALLCHARGE", getcharge)
 
+    const minute = 5;
 
-    const minute = 5
-
-
-    const getuserdetail = await User.findOne({ _id: req.body.userid })
+    const getuserdetail = await User.findOne({ _id: req.body.userid });
     //console.log("GETUSER",getuserdetail)
     if (getuserdetail) {
-      let totalamt = getcharge * minute
+      let totalamt = getcharge * minute;
       //  console.log("TOTAL AMT WAS DEDUCTED", totalamt)
 
-      const getwalletamt = getuserdetail.amount
+      const getwalletamt = getuserdetail.amount;
       // console.log("WALLET AMT", getwalletamt)
-      let newamt = 0
+      let newamt = 0;
       if (getwalletamt > totalamt) {
         // console.log("success")
 
@@ -1037,7 +985,7 @@ exports.addChatWallet = async (req, res) => {
         //             // callCharge:getoneastro.callCharge,
         //             // minute:
         //           });
-        //         }) 
+        //         })
         //         .catch((error) => {
         //           res.status(400).json({
         //             status: false,
@@ -1063,38 +1011,34 @@ exports.addChatWallet = async (req, res) => {
         res.status(200).json({
           status: true,
           msg: "success",
-          type: "Chat"
-        })
-
-
+          type: "Chat",
+        });
       } else {
         // console.log("INSUFFICIENT BALANCE")
         res.status(201).json({
           status: false,
-          msg: "Insufficient belence"
-        })
+          msg: "Insufficient belence",
+        });
       }
-
     } else {
       // console.log("ERROR")
       res.status(400).json({
         status: false,
-        msg: "Something Went Wrong"
-      })
+        msg: "Something Went Wrong",
+      });
     }
   } else {
     // console.log("error")
     res.status(400).json({
       status: false,
-      msg: "Something Went Wrong"
-    })
+      msg: "Something Went Wrong",
+    });
   }
-
-}
-
+};
 
 exports.getOnenotificationByastro = async (req, res) => {
-  await ChatWallet.findOne({ _id: req.params.id }).populate("userid")
+  await ChatWallet.findOne({ _id: req.params.id })
+    .populate("userid")
     .then((data) => resp.successr(res, data))
     .catch((error) => resp.errorr(res, error));
 };
