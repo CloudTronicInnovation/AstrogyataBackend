@@ -256,6 +256,7 @@ exports.changeToAvailable = async (req, res) => {
     // console.log(cron_job);
     cron_job.stop();
     delete cron_jobs[key];
+    timerJob({ userId, astroId, status: "stop" });
     // return res.status(200).send("Status updated successfully");
     try {
       const updatedAstrologer = await Astrologer.findByIdAndUpdate(
@@ -459,7 +460,7 @@ exports.userChathistory = async (req, res) => {
 };
 
 exports.astroChathistory = async (req, res) => {
-  await ChatHistory.find({ astroid: req.params.id })
+  await ChatHistory.find({ astroId: req.params.id })
     .populate("userId")
     .populate("astroId")
     .sort({ createdAt: 1 })
