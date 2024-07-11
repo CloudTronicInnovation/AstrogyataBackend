@@ -453,7 +453,7 @@ exports.userChathistory = async (req, res) => {
     .populate("userId")
     .populate("astroId")
     .then((data) => {
-      console.log("data is ", data);
+      // console.log("data is ", data);
       resp.successr(res, data);
     })
     .catch((error) => resp.errorr(res, error));
