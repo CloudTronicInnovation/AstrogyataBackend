@@ -16,7 +16,9 @@ const newPayment = async (req, res) => {
         merchantUserId: req.body.MUID,
         name: req.body.name,
         amount: req.body.amount * 100,
-        redirectUrl: `http://localhost:5000/api/status/${merchantTransactionId}`,
+        // redirectUrl: `https://www.astrogyata.in/api/status/${merchantTransactionId}`,
+        // redirectUrl: `http://192.168.1.112:4000/api/status/${merchantTransactionId}`,
+        redirectUrl: `https://api.astrogyata.in/api/api/status/${merchantTransactionId}`,
         redirectMode: 'POST',
         mobileNumber: req.body.number,
         paymentInstrument: {
@@ -55,6 +57,7 @@ const newPayment = async (req, res) => {
 }
 
 const checkStatus = async (req, res) => {
+    console.log('comming checkStatus');
     // let saltKey = '099eb0cd-02cf-4e2a-8aca-3e6c6aff0399';
     let saltKey = "ec032412-1849-41a7-9ba2-3b3cf0cfeb91"
     const merchantTransactionId = res.req.body.transactionId
@@ -79,15 +82,17 @@ const checkStatus = async (req, res) => {
     // CHECK PAYMENT TATUS
     axios.request(options).then(async (response) => {
         if (response.data.success === true) {
-            console.log(response.data)
+            // console.log(response.data)
             // const url = `http://localhost:3000/success`
-            const url = `https://www.astrogyata.in/`
-            return res.redirect(url)
+            // const url = `https://www.astrogyata.in/success`
+            return res.status(200).send(response.data)
+            // return res.redirect(url)
         } else {
             // const url = `http://localhost:3000/failure`
             // return res.redirect(url)
-            const url = `https://www.astrogyata.in/`
-            return res.redirect(url)
+            // const url = `https://www.astrogyata.in/failure`
+            // return res.redirect(url)
+            return res.status(200).send(response.data)
         }
     }).catch((error) => {
         console.error(error);
@@ -138,5 +143,4 @@ module.exports = {
     newPayment,
     checkStatus
 }
-
 
