@@ -61,28 +61,28 @@ const thisSchema = new Schema(
       type: String,
       default: ""
     },
-    marital_status: {
-      type: String,
-      required: true
-    },
+    // marital_status: {
+    //   type: String,
+    //   required: true
+    // },
     //Single , Married ,Divorced ,Separated ,Widowed
-    occupation: {
-      type: String,
-      required: true
-    },
+    // occupation: {
+    //   type: String,
+    //   required: true
+    // },
     // Private Sector ,Govt Sector ,Business/Self Employed ,Civil Services ,Defence  ,Not Working ,Student
-    topic_of_cnsrn: {
-      type: String,
-      required: true
-    },
+    // topic_of_cnsrn: {
+    //   type: String,
+    //   required: true
+    // },
     // Career and Business ,Marriage ,Love and Relationship ,Wealth and Property ,Education ,Legal Matters ,Child Name Consultation ,Business Name Consultation ,Gem Stone Consultation ,Commodity trading consultation ,Match making ,Birth Time Rectification ,Name Correction Consultation,Travel Abroad Consulation ,Remedy Consultation ,Health Consultation ,Others
     entertopic_of_cnsrn: {
       type: String,
       //  required:true
     },
-    file: {
-      type: Array
-    },
+    // file: {
+    //   type: Array
+    // },
     type: {
       type: String,
     }
